@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resume Analyzer</title>
+</head>
+<body>
+
+<h2>Upload Resume</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="resume" required>
+    <button type="submit">Upload</button>
+</form>
+
+<!-- ERROR MESSAGE -->
+{% if error %}
+<p style="color:red;"><b>{{ error }}</b></p>
+{% endif %}
+
+<!-- RESULT -->
+{% if result %}
+<h3>Result</h3>
+
+<p><b>Name:</b> {{ result.name }}</p>
+<p><b>Email:</b> {{ result.email }}</p>
+<p><b>Phone:</b> {{ result.phone }}</p>
+
+<p><b>LinkedIn:</b> 
+<a href="{{ result.linkedin }}" target="_blank">
+    {{ result.linkedin }}
+</a>
+</p>
+
+<p><b>Skills:</b></p>
+<ul>
+{% for skill in result.skills %}
+    <li>{{ skill }}</li>
+{% endfor %}
+</ul>
+
+<p><b>Education:</b> {{ result.education }}</p>
+<p><b>Experience:</b> {{ result.experience }}</p>
+
+{% endif %}
+
+</body>
+</html>
