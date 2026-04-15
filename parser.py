@@ -1,20 +1,22 @@
 import re
 import json
 import spacy
+import os
 from pdfminer.high_level import extract_text
 import docx
 
-# Load NLP model
-nlp = spacy.load("en_core_web_sm")
+try:
+    nlp = spacy.load("en_core_web_sm")
+except:
+    os.system("python -m spacy download en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
 
-# Load skills
 with open("skills.json") as f:
     SKILLS_DB = [s.lower() for s in json.load(f)]
 
 
 class ResumeParser:
 
-    # -------- TEXT EXTRACTION --------
     def extract_text(self, file_path):
         if file_path.endswith(".pdf"):
             return extract_text(file_path)
