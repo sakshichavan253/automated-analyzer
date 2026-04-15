@@ -1,6 +1,7 @@
 flask
-spacy==3.5.0
+spacy==spacy==3.7.2
 pdfminer.six
 python-docx
 pandas
 gunicorn
+thinc==8.2.2
