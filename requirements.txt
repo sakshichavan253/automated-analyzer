@@ -1,7 +1,6 @@
-flask
-spacy==spacy==3.7.2
+flas
+spacy==3.7.2
 pdfminer.six
 python-docx
 pandas
 gunicorn
-thinc==8.2.2
