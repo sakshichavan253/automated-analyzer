@@ -4,5 +4,8 @@ pdfminer.six
 python-docx
 pandas
 gunicorn
+<<<<<<< HEAD
 
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
+=======
+>>>>>>> cdb67dbc79c5db46db9eca6ae6afcde173617cb3
