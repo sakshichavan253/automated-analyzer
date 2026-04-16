@@ -7,7 +7,6 @@ app = Flask(__name__)
 UPLOAD_FOLDER = "uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# Allowed file types
 ALLOWED_EXTENSIONS = {"pdf", "docx"}
 
 parser = ResumeParser()
@@ -23,21 +22,19 @@ def index():
 
     if request.method == "POST":
 
-        # Check file present
         if "resume" not in request.files:
             error = "No file uploaded"
             return render_template("index.html", result=result, error=error)
 
         file = request.files["resume"]
 
-        # Check file selected
         if file.filename == "":
             error = "No file selected"
             return render_template("index.html", result=result, error=error)
 
-        # Check file type
         if file and allowed_file(file.filename):
             filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # ensure folder exists
             file.save(filepath)
 
             result = parser.parse_file(filepath)
@@ -49,4 +46,4 @@ def index():
 
 if __name__ == "__main__":
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=10000)
