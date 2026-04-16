@@ -1,7 +1,4 @@
 flask==2.3.3
 gunicorn==21.2.0
 spacy==3.7.2
-numpy==1.26.4
-pandas
-python-docx
-pdfminer.six
+numpy==1.24.4
