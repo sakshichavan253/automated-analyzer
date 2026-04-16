@@ -1,5 +1,5 @@
 flask
-spacy==3.7.2
+spacy==3.5.0
 pdfminer.six
 python-docx
 pandas
