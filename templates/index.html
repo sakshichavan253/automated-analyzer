@@ -2,46 +2,94 @@
 <html>
 <head>
     <title>Resume Analyzer</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f8;
+            text-align: center;
+        }
+
+        .container {
+            width: 50%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            margin-top: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px #ccc;
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 10px;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        ul {
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
 
-<h2>Upload Resume</h2>
+<div class="container">
+    <h2>📄 Resume Analyzer</h2>
 
-<form method="POST" enctype="multipart/form-data">
-    <input type="file" name="resume" required>
-    <button type="submit">Upload</button>
-</form>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="resume" required>
+        <br>
+        <button type="submit">Analyze Resume</button>
+    </form>
 
-<!-- ERROR MESSAGE -->
-{% if error %}
-<p style="color:red;"><b>{{ error }}</b></p>
-{% endif %}
+    {% if data %}
+        <hr>
 
-<!-- RESULT -->
-{% if result %}
-<h3>Result</h3>
+        <h3>👤 Basic Info</h3>
+        <p><b>Name:</b> {{ data.name }}</p>
+        <p><b>Email:</b> {{ data.email }}</p>
+        <p><b>Phone:</b> {{ data.phone }}</p>
+        <p><b>LinkedIn:</b> {{ data.linkedin }}</p>
 
-<p><b>Name:</b> {{ result.name }}</p>
-<p><b>Email:</b> {{ result.email }}</p>
-<p><b>Phone:</b> {{ result.phone }}</p>
+        <h3>💡 Skills</h3>
+        <ul>
+            {% for skill in data.skills %}
+                <li>{{ skill }}</li>
+            {% endfor %}
+        </ul>
 
-<p><b>LinkedIn:</b> 
-<a href="{{ result.linkedin }}" target="_blank">
-    {{ result.linkedin }}
-</a>
-</p>
+        <h3>🎓 Education</h3>
+        <ul>
+            {% for edu in data.education %}
+                <li>{{ edu }}</li>
+            {% endfor %}
+        </ul>
 
-<p><b>Skills:</b></p>
-<ul>
-{% for skill in result.skills %}
-    <li>{{ skill }}</li>
-{% endfor %}
-</ul>
+        <h3>💼 Experience</h3>
+        <ul>
+            {% for exp in data.experience %}
+                <li>{{ exp }}</li>
+            {% endfor %}
+        </ul>
 
-<p><b>Education:</b> {{ result.education }}</p>
-<p><b>Experience:</b> {{ result.experience }}</p>
+        <h3>🚀 Projects</h3>
+        <ul>
+            {% for proj in data.projects %}
+                <li>{{ proj }}</li>
+            {% endfor %}
+        </ul>
 
-{% endif %}
+    {% endif %}
+</div>
 
 </body>
 </html>

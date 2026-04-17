@@ -1,105 +1,109 @@
 import re
-import json
 import spacy
 from pdfminer.high_level import extract_text
-import docx
+from docx import Document
+import json
 
-# Load NLP model
 nlp = spacy.load("en_core_web_sm")
 
-with open("skills.json") as f:
-    SKILLS_DB = [s.lower() for s in json.load(f)]
 
 class ResumeParser:
 
     def extract_text(self, file_path):
         if file_path.endswith(".pdf"):
             return extract_text(file_path)
+
         elif file_path.endswith(".docx"):
-            doc = docx.Document(file_path)
+            doc = Document(file_path)
             return "\n".join([p.text for p in doc.paragraphs])
+
         return ""
 
-    # -------- CLEAN TEXT --------
-    def clean_text(self, text):
-        text = re.sub(r'\n+', '\n', text)
-        text = re.sub(r'[^\x00-\x7F]+', ' ', text)
-        text = re.sub(r'\s+', ' ', text)
-        return text.strip()
-
-    # -------- EMAIL --------
-    def extract_email(self, text):
-        emails = re.findall(r"[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+", text)
-        return emails[0] if emails else "Not Found"
-
-    # -------- PHONE --------
-    def extract_phone(self, text):
-        phones = re.findall(r'\+?\d[\d\s\-]{8,15}', text)
-        return phones[0] if phones else "Not Found"
-
-    # -------- LINKEDIN --------
-    def extract_linkedin(self, text):
-        links = re.findall(r'https?://(?:www\.)?linkedin\.com/[^\s]+', text)
-        return links[0] if links else "Not Found"
-
-    # -------- NAME --------
+    # ---------------- NAME ----------------
     def extract_name(self, text):
-        doc = nlp(text[:1000])
+        doc = nlp(text)
         for ent in doc.ents:
             if ent.label_ == "PERSON":
                 return ent.text
         return "Not Found"
 
-    # -------- SKILLS --------
+    # ---------------- EMAIL ----------------
+    def extract_email(self, text):
+        match = re.search(r"\S+@\S+", text)
+        return match.group() if match else "Not Found"
+
+    # ---------------- PHONE ----------------
+    def extract_phone(self, text):
+        match = re.search(r"\+?\d[\d\s-]{8,}", text)
+        return match.group() if match else "Not Found"
+
+    # ---------------- LINKEDIN ----------------
+    def extract_linkedin(self, text):
+        match = re.search(r"(https?://)?(www\.)?linkedin\.com/in/[A-Za-z0-9_-]+", text)
+        return match.group() if match else "Not Found"
+
+    # ---------------- SKILLS ----------------
     def extract_skills(self, text):
-        text_lower = text.lower()
-        found = set()
+        with open("skills.json") as f:
+            skills_data = json.load(f)
 
-        for skill in SKILLS_DB:
-            if skill in text_lower:
-                found.add(skill.title())
+        found_skills = []
+        for skill in skills_data["skills"]:
+            if skill.lower() in text.lower():
+                found_skills.append(skill)
 
-        return list(found)
+        return found_skills
 
-    # -------- SECTION SEGMENT --------
-    def segment_sections(self, text):
-        sections = {
-            "education": "",
-            "experience": "",
-            "projects": ""
-        }
-
+    # ---------------- EDUCATION ----------------
+    def extract_education(self, text):
         lines = text.split("\n")
-        current = None
+        education = []
+
+        keywords = ["bachelor", "master", "bca", "btech", "mca", "mba", "college", "university"]
 
         for line in lines:
-            l = line.lower()
+            if any(word in line.lower() for word in keywords):
+                education.append(line.strip())
 
-            if "education" in l:
-                current = "education"
-            elif "experience" in l or "work" in l:
-                current = "experience"
-            elif "project" in l:
-                current = "projects"
-            elif current:
-                sections[current] += line + " "
+        return education if education else ["Not Found"]
 
-        return sections
+    # ---------------- EXPERIENCE ----------------
+    def extract_experience(self, text):
+        lines = text.split("\n")
+        experience = []
 
-    # -------- FINAL PARSER --------
-    def parse_file(self, file_path):
-        raw_text = self.extract_text(file_path)
-        clean = self.clean_text(raw_text)
+        keywords = ["experience", "intern", "worked", "company", "job"]
 
-        sections = self.segment_sections(raw_text)
+        for line in lines:
+            if any(word in line.lower() for word in keywords):
+                experience.append(line.strip())
+
+        return experience if experience else ["Not Found"]
+
+    # ---------------- PROJECTS ----------------
+    def extract_projects(self, text):
+        lines = text.split("\n")
+        projects = []
+
+        keywords = ["project", "developed", "built", "created"]
+
+        for line in lines:
+            if any(word in line.lower() for word in keywords):
+                projects.append(line.strip())
+
+        return projects if projects else ["Not Found"]
+
+    # ---------------- FINAL ----------------
+    def parse_resume(self, file_path):
+        text = self.extract_text(file_path)
 
         return {
-            "name": self.extract_name(clean),
-            "email": self.extract_email(clean),
-            "phone": self.extract_phone(clean),
-            "linkedin": self.extract_linkedin(clean),
-            "skills": self.extract_skills(clean),
-            "education": sections["education"].strip(),
-            "experience": sections["experience"].strip(),
-            "projects": sections["projects"].strip()
+            "name": self.extract_name(text),
+            "email": self.extract_email(text),
+            "phone": self.extract_phone(text),
+            "linkedin": self.extract_linkedin(text),
+            "skills": self.extract_skills(text),
+            "education": self.extract_education(text),
+            "experience": self.extract_experience(text),
+            "projects": self.extract_projects(text)
         }
